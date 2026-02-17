@@ -1,8 +1,8 @@
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CanvasComponent as Comp } from '../types.ts';
+import { CanvasComponent as Comp, ActionConfig, Page } from '../types.ts';
 
 @Component({
   selector: 'app-property-panel',
@@ -37,30 +37,76 @@ import { CanvasComponent as Comp } from '../types.ts';
 
         <div class="p-5 space-y-8">
           
-          <!-- GRID SYSTEM CONTROL (Quan trọng) -->
+          <!-- CONFIG: LABEL (For Input/Textarea) -->
+          <div *ngIf="component.type === 'input' || component.type === 'textarea'" class="space-y-3">
+             <div class="flex items-center gap-2">
+                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nhãn (Label)</span>
+                 <span class="text-[9px] text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">JSON Config</span>
+             </div>
+             <input type="text" [ngModel]="component.label" (ngModelChange)="updateLabel.emit($event)" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-indigo-500" placeholder="VD: Họ và tên..." />
+          </div>
+
+          <!-- Content Input -->
+          <div class="space-y-3" *ngIf="component.type !== 'container'">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                {{ (component.type === 'input' || component.type === 'textarea') ? 'Placeholder' : 'Nội dung / Text' }}
+            </label>
+            <textarea 
+              [ngModel]="component.content"
+              (ngModelChange)="updateContent.emit($event)"
+              class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 outline-none h-20 transition-all resize-none"
+              [placeholder]="(component.type === 'input' || component.type === 'textarea') ? 'Nhập placeholder...' : 'Nhập nội dung...'"
+            ></textarea>
+          </div>
+
+          <!-- EVENT & ACTION CONFIGURATION -->
+          <div *ngIf="component.type === 'button'" class="p-4 bg-orange-50 border border-orange-100 rounded-2xl space-y-4">
+             <div class="flex items-center gap-2 mb-1 border-b border-orange-100 pb-2">
+                <svg class="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                <label class="text-[10px] font-black text-orange-600 uppercase tracking-widest">Cấu hình Sự kiện (Event)</label>
+             </div>
+             
+             <!-- Select Action Type -->
+             <div class="space-y-1">
+                <span class="text-[9px] font-bold text-slate-500">Hành động khi Click</span>
+                <select 
+                  [ngModel]="localAction.type" 
+                  (ngModelChange)="onActionTypeChange($event)"
+                  class="w-full p-2 bg-white border border-orange-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-orange-200 outline-none"
+                >
+                  <option value="none">Không có (None)</option>
+                  <option value="api">Gọi API (Call API)</option>
+                  <option value="popup">Mở Popup Động</option>
+                  <option value="navigate">Chuyển trang (Redirect)</option>
+                  <option value="alert">Hiện thông báo (Alert)</option>
+                  <option value="console">Log Console</option>
+                </select>
+             </div>
+             
+             <!-- ... API/Popup Configs ... -->
+             <div *ngIf="localAction.type === 'api'" class="space-y-3 animate-in fade-in">
+                <input type="text" [(ngModel)]="localAction.apiUrl" (blur)="emitAction()" placeholder="API URL..." class="w-full p-2 bg-white border border-orange-200 rounded-lg text-xs outline-none" />
+                <select [(ngModel)]="localAction.apiMethod" (change)="emitAction()" class="w-full p-2 bg-white border border-orange-200 rounded-lg text-xs outline-none">
+                      <option value="POST">POST</option><option value="GET">GET</option>
+                </select>
+             </div>
+             
+             <div *ngIf="localAction.type === 'alert'" class="space-y-1 animate-in fade-in">
+                <input type="text" [(ngModel)]="localAction.message" (blur)="emitAction()" placeholder="Tin nhắn..." class="w-full p-2 bg-white border border-orange-200 rounded-lg text-xs outline-none" />
+             </div>
+          </div>
+
+          <!-- GRID SYSTEM CONTROL -->
           <div *ngIf="component.type !== 'container'" class="space-y-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
             <div class="flex justify-between items-center">
               <label class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Độ rộng cột</label>
               <span class="text-[10px] font-bold text-indigo-600 bg-white px-2 py-0.5 rounded shadow-sm">{{component.styles.width}}%</span>
             </div>
-            
             <div class="grid grid-cols-4 gap-2">
-              <button (click)="updateStyles.emit({width: 25})" [class]="getBtnClass(25)">
-                <div class="flex gap-0.5 w-full h-2 justify-center"><div class="w-1 bg-current rounded-sm"></div></div>
-                <span class="mt-1">1/4</span>
-              </button>
-              <button (click)="updateStyles.emit({width: 33.33})" [class]="getBtnClass(33.33)">
-                <div class="flex gap-0.5 w-full h-2 justify-center"><div class="w-1.5 bg-current rounded-sm"></div></div>
-                <span class="mt-1">1/3</span>
-              </button>
-              <button (click)="updateStyles.emit({width: 50})" [class]="getBtnClass(50)">
-                <div class="flex gap-0.5 w-full h-2 justify-center"><div class="w-2 bg-current rounded-sm"></div></div>
-                <span class="mt-1">1/2</span>
-              </button>
-              <button (click)="updateStyles.emit({width: 100})" [class]="getBtnClass(100)">
-                <div class="flex gap-0.5 w-full h-2 justify-center"><div class="w-4 bg-current rounded-sm"></div></div>
-                <span class="mt-1">Full</span>
-              </button>
+              <button (click)="updateStyles.emit({width: 25})" [class]="getBtnClass(25)">1/4</button>
+              <button (click)="updateStyles.emit({width: 33.33})" [class]="getBtnClass(33.33)">1/3</button>
+              <button (click)="updateStyles.emit({width: 50})" [class]="getBtnClass(50)">1/2</button>
+              <button (click)="updateStyles.emit({width: 100})" [class]="getBtnClass(100)">Full</button>
             </div>
             <input type="range" min="5" max="100" step="5" [ngModel]="component.styles.width" (ngModelChange)="updateStyles.emit({width: $event})" class="w-full accent-indigo-600 mt-2" />
           </div>
@@ -72,101 +118,59 @@ import { CanvasComponent as Comp } from '../types.ts';
                <input type="range" min="0" max="48" step="4" [ngModel]="component.styles.borderWidth" (ngModelChange)="updateStyles.emit({borderWidth: $event})" class="flex-1 accent-indigo-600" />
                <span class="text-xs font-bold w-8 text-right">{{component.styles.borderWidth}}px</span>
              </div>
-             <p class="text-[9px] text-slate-400 italic">* Sử dụng border-width làm tham số Gap</p>
           </div>
 
-          <!-- Content Input -->
-          <div class="space-y-3" *ngIf="component.type !== 'container'">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nội dung</label>
-            <textarea 
-              [ngModel]="component.content"
-              (ngModelChange)="updateContent.emit($event)"
-              class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20 outline-none h-20 transition-all resize-none"
-              placeholder="Nhập nội dung..."
-            ></textarea>
-          </div>
-
-          <!-- Typography / Styles -->
+          <!-- Styles Config -->
           <div class="space-y-6">
-            <!-- Align -->
             <div class="space-y-3">
               <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Căn lề</label>
               <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <button *ngFor="let align of ['left', 'center', 'right']"
-                        (click)="updateStyles.emit({textAlign: align})"
-                        class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase transition-all flex items-center justify-center"
-                        [class.bg-white]="component.styles.textAlign === align"
-                        [class.shadow-sm]="component.styles.textAlign === align"
-                        [class.text-indigo-600]="component.styles.textAlign === align"
-                        [class.text-slate-400]="component.styles.textAlign !== align"
-                >
-                  <svg *ngIf="align==='left'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M4 6h16M4 12h10M4 18h7" /></svg>
-                  <svg *ngIf="align==='center'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M4 6h16M7 12h10M9 18h6" /></svg>
-                  <svg *ngIf="align==='right'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M4 6h16M10 12h10M13 18h7" /></svg>
-                </button>
+                <button *ngFor="let align of ['left', 'center', 'right']" (click)="updateStyles.emit({textAlign: align})" class="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase transition-all" [class.bg-white]="component.styles.textAlign === align" [class.shadow-sm]="component.styles.textAlign === align">{{align}}</button>
               </div>
             </div>
-
-            <!-- Spacing & Radius -->
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Padding</label>
-                 <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2">
-                    <input type="number" [ngModel]="component.styles.padding" (ngModelChange)="updateStyles.emit({padding: $event})" class="w-full bg-transparent p-2 text-xs font-bold outline-none" />
-                    <span class="text-[9px] text-slate-400">px</span>
-                 </div>
-              </div>
-              <div class="space-y-2">
-                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bo góc</label>
-                 <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2">
-                    <input type="number" [ngModel]="component.styles.borderRadius" (ngModelChange)="updateStyles.emit({borderRadius: $event})" class="w-full bg-transparent p-2 text-xs font-bold outline-none" />
-                    <span class="text-[9px] text-slate-400">px</span>
-                 </div>
-              </div>
-            </div>
-
-            <!-- Colors -->
-            <div class="space-y-3 pt-4 border-t border-slate-100">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Màu sắc</label>
-              <div class="grid grid-cols-2 gap-3">
-                 <div class="space-y-1">
-                   <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 hover:border-indigo-300 transition-colors cursor-pointer relative group">
-                     <input type="color" [ngModel]="component.styles.backgroundColor" (ngModelChange)="updateStyles.emit({backgroundColor: $event})" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                     <div class="w-6 h-6 rounded-lg border border-slate-100 shadow-sm" [style.background-color]="component.styles.backgroundColor"></div>
-                     <span class="text-[10px] font-mono text-slate-600 uppercase flex-1 text-right">{{component.styles.backgroundColor}}</span>
-                   </div>
-                   <span class="text-[9px] text-slate-400 font-medium px-1">Background</span>
-                 </div>
-                 <div class="space-y-1">
-                   <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 hover:border-indigo-300 transition-colors cursor-pointer relative group">
-                     <input type="color" [ngModel]="component.styles.color" (ngModelChange)="updateStyles.emit({color: $event})" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                     <div class="w-6 h-6 rounded-lg border border-slate-100 shadow-sm" [style.background-color]="component.styles.color"></div>
-                     <span class="text-[10px] font-mono text-slate-600 uppercase flex-1 text-right">{{component.styles.color}}</span>
-                   </div>
-                   <span class="text-[9px] text-slate-400 font-medium px-1">Text Color</span>
-                 </div>
-              </div>
-            </div>
-            
           </div>
         </div>
       </div>
     </aside>
   `
 })
-export class PropertyPanelComponent {
+export class PropertyPanelComponent implements OnChanges {
   @Input() component: Comp | null = null;
+  @Input() pages: Page[] = [];
   @Output() updateContent = new EventEmitter<string>();
+  @Output() updateLabel = new EventEmitter<string>(); // <-- New Output
   @Output() updateStyles = new EventEmitter<Partial<Comp['styles']>>();
+  @Output() updateAction = new EventEmitter<ActionConfig>();
   @Output() delete = new EventEmitter<void>();
 
+  localAction: ActionConfig = { type: 'none' };
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['component'] && this.component) {
+      this.localAction = { 
+        ...this.component.action,
+        popupType: this.component.action?.popupType || 'text',
+      } || { type: 'none', popupType: 'text' };
+    }
+  }
+
+  onActionTypeChange(type: any) {
+    this.localAction = { 
+      type, 
+      apiUrl: '', apiMethod: 'POST', message: '', targetUrl: '', 
+      popupTitle: 'Thông báo', popupType: 'text', popupContentJson: '', popupTargetId: ''
+    };
+    this.emitAction();
+  }
+
+  emitAction() {
+    this.updateAction.emit(this.localAction);
+  }
+
   getBtnClass(width: number) {
-    // Check approximate match for floating point comparison
     const isActive = Math.abs((this.component?.styles.width || 0) - width) < 1;
-    return `flex flex-col items-center justify-center py-2 rounded-xl text-[10px] font-bold border transition-all ${
-      isActive 
-      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' 
-      : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50'
+    return `flex items-center justify-center py-2 rounded-xl text-[10px] font-bold border transition-all ${
+      isActive ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-500 border-slate-200 hover:bg-indigo-50'
     }`;
   }
 }

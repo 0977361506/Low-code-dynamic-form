@@ -1,17 +1,22 @@
 
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ComponentType } from '../types.ts';
+import { FormsModule } from '@angular/forms';
+import { ComponentType, Page } from '../types.ts';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-hidden">
-      <div class="p-6 border-b border-slate-100">
+      
+      <!-- COMPONENT TOOLS HEADER -->
+      <div class="p-6 border-b border-slate-100 bg-slate-50/50">
         <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Kéo thả thành phần</h3>
       </div>
+      
+      <!-- TOOLS LIST -->
       <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
         <div class="grid grid-cols-1 gap-3">
           <div *ngFor="let item of tools"
@@ -29,11 +34,23 @@ import { ComponentType } from '../types.ts';
           </div>
         </div>
       </div>
+
+      <!-- INFO FOOTER -->
+      <div class="p-4 border-t border-slate-100 text-center">
+        <p class="text-[10px] text-slate-400">Kéo phần tử vào vùng Canvas bên phải</p>
+      </div>
     </aside>
   `
 })
 export class SidebarComponent {
+  @Input() pages: Page[] = [];
+  @Input() activePageId: string = '';
+  
   @Output() addComponent = new EventEmitter<ComponentType>();
+  @Output() addPage = new EventEmitter<void>();
+  @Output() selectPage = new EventEmitter<string>();
+  @Output() updatePageName = new EventEmitter<{id: string, name: string}>();
+  @Output() deletePage = new EventEmitter<string>();
 
   tools = [
     { type: 'container', label: 'Khối chứa (Container)', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },

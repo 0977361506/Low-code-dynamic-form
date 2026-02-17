@@ -2,7 +2,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CanvasComponent as Comp, Page, AppSchema } from '../types.ts';
+import { CanvasComponent as Comp, Page, AppSchema } from '../types';
 
 @Component({
   selector: 'app-viewer-page',

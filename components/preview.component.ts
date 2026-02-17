@@ -1,7 +1,7 @@
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CanvasComponent as Comp, Page } from '../types.ts';
+import { CanvasComponent as Comp, Page } from '../types';
 
 @Component({
   selector: 'app-preview',

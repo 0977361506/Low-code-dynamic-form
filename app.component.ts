@@ -1,14 +1,14 @@
 
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from './components/navbar.component.ts';
-import { SidebarComponent } from './components/sidebar.component.ts';
-import { CanvasComponent } from './components/canvas.component.ts';
-import { PropertyPanelComponent } from './components/property-panel.component.ts';
-import { PreviewComponent } from './components/preview.component.ts';
-import { JSONViewerComponent } from './components/json-viewer.component.ts';
-import { ViewerPageComponent } from './components/viewer-page.component.ts';
-import { CanvasComponent as Comp, ComponentType, ActionConfig, Page, AppSchema } from './types.ts';
+import { NavbarComponent } from './components/navbar.component';
+import { SidebarComponent } from './components/sidebar.component';
+import { CanvasComponent } from './components/canvas.component';
+import { PropertyPanelComponent } from './components/property-panel.component';
+import { PreviewComponent } from './components/preview.component';
+import { JSONViewerComponent } from './components/json-viewer.component';
+import { ViewerPageComponent } from './components/viewer-page.component';
+import { CanvasComponent as Comp, ComponentType, ActionConfig, Page, AppSchema } from './types';
 
 @Component({
   selector: 'app-root',

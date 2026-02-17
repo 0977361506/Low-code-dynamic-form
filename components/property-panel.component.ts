@@ -2,7 +2,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CanvasComponent as Comp, ActionConfig, Page } from '../types.ts';
+import { CanvasComponent as Comp, ActionConfig, Page } from '../types';
 
 @Component({
   selector: 'app-property-panel',
@@ -147,10 +147,10 @@ export class PropertyPanelComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['component'] && this.component) {
-      this.localAction = { 
+      this.localAction = this.component.action ? { 
         ...this.component.action,
-        popupType: this.component.action?.popupType || 'text',
-      } || { type: 'none', popupType: 'text' };
+        popupType: this.component.action.popupType || 'text',
+      } : { type: 'none', popupType: 'text' };
     }
   }
 

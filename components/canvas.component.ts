@@ -1,7 +1,7 @@
 
 import { Component, Input, Output, EventEmitter, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CanvasComponent as Comp, ComponentType } from '../types.ts';
+import { CanvasComponent as Comp, ComponentType } from '../types';
 
 @Component({
   selector: 'app-canvas',

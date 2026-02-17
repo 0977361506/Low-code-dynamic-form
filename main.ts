@@ -2,7 +2,7 @@
 import 'zone.js';
 import '@angular/compiler';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { AppComponent } from './app.component.ts';
+import { AppComponent } from './app.component';
 
 bootstrapApplication(AppComponent).catch(err => {
   console.error('Bootstrap Error:', err);

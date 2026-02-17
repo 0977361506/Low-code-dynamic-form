@@ -16,7 +16,8 @@
               "base": "./dist",
               "browser": "."
             },
-            "browser": "index.tsx",
+            "browser": "main.ts",
+            "index": "index.html",
             "tsConfig": "tsconfig.json"
           },
           "configurations": {

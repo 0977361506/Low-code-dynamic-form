@@ -2,7 +2,7 @@
 import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ComponentType, Page } from '../types.ts';
+import { ComponentType, Page } from '../types';
 
 @Component({
   selector: 'app-sidebar',
